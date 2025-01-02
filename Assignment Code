@@ -1,0 +1,128 @@
+
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <string>
+#include <map>
+#include <cstdlib>
+#include <cctype>
+// # include <bits/stdc++.h>
+// Function to decode a number from a given base
+long long decode(const std::string &value, int base) {
+    long long decoded = 0;
+    for (char digit : value) {
+        int digitValue = (isdigit(digit) ? digit - '0' : toupper(digit) - 'A' + 10);
+        decoded = decoded * base + digitValue;
+    }
+    return decoded;
+}
+
+// Function for Lagrange Interpolation to find f(0)
+long long lagrangeInterpolation(const std::vector<std::pair<int, long long>> &points) {
+    long long result = 0;
+    int k = points.size();
+
+    for (int i = 0; i < k; ++i) {
+        long long term = points[i].second; // Start with y_i
+        for (int j = 0; j < k; ++j) {
+            if (i != j) {
+                long long denominator = points[i].first - points[j].first;
+                // Perform modular inverse to avoid division errors
+                term *= -points[j].first;
+                term /= denominator;  // Dividing the term by the denominator
+            }
+        }
+        result += term;
+    }
+
+    return result;
+}
+
+int main() {
+    int n, k;
+    std::cout << "Enter the total number of points (n): ";
+    std::cin >> n;
+    std::cout << "Enter the minimum number of points required (k): ";
+    std::cin >> k;
+
+    std::vector<std::pair<int, long long>> points;
+
+    for (int i = 0; i < n; ++i) {
+        int x;
+        std::string y_encoded;
+        int base;
+
+        std::cout << "Enter x for point " << i + 1 << ": ";
+        std::cin >> x;
+        std::cout << "Enter the base of y for point " << i + 1 << ": ";
+        std::cin >> base;
+        std::cout << "Enter the encoded value of y for point " << i + 1 << ": ";
+        std::cin >> y_encoded;
+
+        long long y = decode(y_encoded, base);
+        points.push_back({x, y});
+    }
+
+    // Use the first k points to compute the secret
+    std::vector<std::pair<int, long long>> selectedPoints(points.begin(), points.begin() + k);
+    long long secret = lagrangeInterpolation(selectedPoints);
+
+    std::cout << "The secret (constant term) is: " << secret << std::endl;
+    return 0;
+}
+
+First Test Case:
+-----------------
+
+Enter the total number of points (n): 4
+Enter the minimum number of points required (k): 3
+Enter x for point 1: 1
+Enter the base of y for point 1: 10
+Enter the encoded value of y for point 1: 4
+Enter x for point 2: 2
+Enter the base of y for point 2: 2
+Enter the encoded value of y for point 2: 111
+Enter x for point 3: 3
+Enter the base of y for point 3: 10
+Enter the encoded value of y for point 3: 12
+Enter x for point 4: 6
+Enter the base of y for point 4: 4
+Enter the encoded value of y for point 4: 213
+The secret (constant term) is: 3
+
+
+Second Test Case:
+--------------------
+Enter the total number of points (n): 10
+Enter the minimum number of points required (k): 7
+Enter x for point 1: 1
+Enter the base of y for point 1: 6 
+Enter the encoded value of y for point 1: 13444211440455345511
+Enter x for point 2: 2
+Enter the base of y for point 2: 15
+Enter the encoded value of y for point 2: aed7015a346d63
+Enter x for point 3: 3
+Enter the base of y for point 3: 15
+Enter the encoded value of y for point 3: 6aeeb69631c227c
+Enter x for point 4: 4
+Enter the base of y for point 4: 16
+Enter the encoded value of y for point 4: e1b5e05623d881f
+Enter x for point 5: 5
+Enter the base of y for point 5: 8
+Enter the encoded value of y for point 5: 316034514573652620673
+Enter x for point 6: 6
+Enter the base of y for point 6: 3
+Enter the encoded value of y for point 6: 2122212201122002221120200210011020220200
+Enter x for point 7: 7
+Enter the base of y for point 7: 3
+Enter the encoded value of y for point 7: 20120221122211000100210021102001201112121
+Enter x for point 8: 8
+Enter the base of y for point 8: 6
+Enter the encoded value of y for point 8: 20220554335330240002224253
+Enter x for point 9: 9
+Enter the base of y for point 9: 12
+Enter the encoded value of y for point 9: 45153788322a1255483
+Enter x for point 10: 10
+Enter the base of y for point 10: 7
+Enter the encoded value of y for point 10: 1101613130313526312514143
+The secret (constant term) is: -6148834854972467479
